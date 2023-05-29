@@ -1,3 +1,4 @@
 *.log
 push_swap
 checker
+*.cpp

@@ -30,7 +30,9 @@ def generate_nums(start, end, size):
             nums = set()
             while len(nums) < size:
                 nums.add(random.randint(start, end))
-            return nums
+            nums = list(nums)
+            random.shuffle(nums)
+            return  nums
     return None
 
 
@@ -45,9 +47,11 @@ checker = f"{relative_path}/checker"
 
 # check if the program checker and push_swap are in the path
 if not os.access(push_swap, os.X_OK):
-    sys.stderr.write("push_swap not found")
+    sys.stderr.write("push_swap not found\n")
+    sys.exit(1)
 if not os.access(checker, os.X_OK):
-    sys.stderr.write("checker not found")
+    sys.stderr.write("checker not found\n")
+    sys.exit(1)
 
 # argv
 args = sys.argv[1:]
@@ -76,18 +80,22 @@ if ops.returncode != 0:
 with open('op.log', 'w') as f:
     f.write(ops.stdout)
 
-ops = ops.stdout.split('\n')
+ops = ops.stdout
+out = ops.split('\n')
 
 status = subprocess.run([checker] + nums,capture_output=True, text=True, stdin=open('op.log'))
 if status.returncode != 0:
+    print(f"sorted: {red}KO{reset}")
+    print(f"push_swap:{yellow}")
+    print(ops)
+    print(f"{reset}")
     sys.stderr.write(f"checker: {status.stderr}")
     sys.exit(1)
 
 if status.stdout == 'OK\n':
     print(f"Sorted: {green}OK{reset}")
-    print(f"Number of Instractions:{blue}{len(ops)-1}{reset}")
+    print(f"Number of Instractions:{green} {str(len(out)-1)}{reset}")
     print(f"numbers: {yellow}")
     print(*nums, sep=' ')
 else:
 	print(red + 'KO' + reset)
-
